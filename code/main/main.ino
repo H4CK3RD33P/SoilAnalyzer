@@ -13,16 +13,39 @@ void setup() {
   Serial.println("IP: "); 
   Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
   server.onNotFound(notFound); //calls the notFound() function upon requesting invalid page
+
+  
   //route
   server.on("/",[](AsyncWebServerRequest *request){
-    String message = "hello world";
-    request->send(200,"text/html",message);
+    //this webpage will be sent upon receiving the request at root
+    //R"=====()=====" is raw string
+    //location.hostname -> hostname of the server
+    //window.location -> location redirection
+    //PROGMEM -> saves the array into flash memory
+    char webpage[700] PROGMEM = R"=====(
+    <DOCTYPE! html>
+    <html>
+      <head>
+        <title>Home</title>
+      </head>
+      <body>
+        <h3>LED control</h3>
+        <button onclick="window.location='http://'+location.hostname+'/led/on'">ON</button>
+      </body>
+    </html>
+  )=====";
+  //send_P -> sends the webpage saved in flash memory
+    request->send_P(200,"text/html",webpage);
   });
+
+  server.on("/led/on",[](AsyncWebServerRequest *request){
+    request->send(200,"text/html","LED ON");
+  });
+  
+  
+  //start servers
   server.begin(); //start the web server
   MDNS.begin("soilanalyzer"); //set up local domain name server with hostname -> soilanalyzer.local
-  
-
-
 }
 
 void loop() {
