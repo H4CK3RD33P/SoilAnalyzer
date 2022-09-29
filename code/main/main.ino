@@ -43,12 +43,14 @@ void setup() {
 
   server.on("/led/on",[](AsyncWebServerRequest *request){
     digitalWrite(LED1,HIGH);
-    request->send(200,"text/html","LED ON");
+    //request->send(200,"text/html","LED ON");
+    request->redirect("/");
   });
 
   server.on("/led/off",[](AsyncWebServerRequest *request){
     digitalWrite(LED1,LOW);
-    request->send(200,"text/html","LED OFF");
+    //request->send(200,"text/html","LED OFF");
+    request->redirect("/");
   });
   
   
