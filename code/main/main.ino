@@ -1,5 +1,6 @@
 #include <ESPAsyncWebServer.h> //importing the Asynchronous server header
 #include <ESPmDNS.h>
+#define LED1 13
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
 
 //defining function for invalid requests
@@ -9,6 +10,7 @@ void notFound(AsyncWebServerRequest *request){
 
 void setup() {
   Serial.begin(115200); //baud rate
+  pinMode(LED1,OUTPUT);
   WiFi.softAP("esp32",""); //hotspot with SSID and password is empty
   Serial.println("IP: "); 
   Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
@@ -31,6 +33,7 @@ void setup() {
       <body>
         <h3>LED control</h3>
         <button onclick="window.location='http://'+location.hostname+'/led/on'">ON</button>
+        <button onclick="window.location='http://'+location.hostname+'/led/off'">OFF</button>
       </body>
     </html>
   )=====";
@@ -39,7 +42,13 @@ void setup() {
   });
 
   server.on("/led/on",[](AsyncWebServerRequest *request){
+    digitalWrite(LED1,HIGH);
     request->send(200,"text/html","LED ON");
+  });
+
+  server.on("/led/off",[](AsyncWebServerRequest *request){
+    digitalWrite(LED1,LOW);
+    request->send(200,"text/html","LED OFF");
   });
   
   
