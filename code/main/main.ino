@@ -1,5 +1,5 @@
 #include <ESPAsyncWebServer.h> //importing the Asynchronous server header
-
+#include <ESPmDNS.h>
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
 
 //defining function for invalid requests
@@ -19,6 +19,9 @@ void setup() {
     request->send(200,"text/html",message);
   });
   server.begin(); //start the web server
+  MDNS.begin("soilanalyzer"); //set up local domain name server with hostname -> soilanalyzer.local
+  
+
 
 }
 
