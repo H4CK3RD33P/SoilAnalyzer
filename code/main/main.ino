@@ -2,7 +2,6 @@
 #include <ESPmDNS.h>
 #include <WebSocketsServer.h>
 #include <ArduinoJson.h>
-#define LED1 13
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
 WebSocketsServer websockets(81); //web sockets server listening at port 81
@@ -40,18 +39,11 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
       Serial.println(error.c_str());
       return;
     }
-
-    int LEDstatus = doc["LED"]; //Get the status from deserialized JSON
-    digitalWrite(LED1,LEDstatus); //turn on or off according to LEDstatus
-    //1 -> HIGH | 0 -> LOW
-  
-
   }
 }
 
 void setup() {
   Serial.begin(115200); //baud rate
-  pinMode(LED1,OUTPUT);
   WiFi.softAP("esp32",""); //hotspot with SSID and password is empty
   Serial.println("IP: "); 
   Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
@@ -68,58 +60,61 @@ void setup() {
     //var connection establishes the connection for websocket from client to serveer at port 81
     //connection.send() sends message from client to server
     char webpage[] PROGMEM = R"=====(
-    <DOCTYPE! html>
-    <html>
-    <script>
-      var connection = new WebSocket('ws://'+location.hostname+':81/');
-      var LEDstatus = 0;
-      function ledon(){
-        LEDstatus = 1;
-        console.log("LED is on");
-        sendData();
-      }
-
-      function ledoff(){
-        LEDstatus = 0;
-        console.log("LED is off");
-        sendData();
-      }
-
-      function sendData(){
-        var fulldata = '{"LED":'+LEDstatus+'}';
-        connection.send(fulldata);
-      }
-
-    </script>
-      <head>
+    <!DOCTYPE html>
+<html>
+    <head>
         <title>Home</title>
-      </head>
-      <body>
-        <h3>LED control</h3>
-        <button onclick=ledon()>ON</button>
-        <button onclick=ledoff()>OFF</button>
-      </body>
-    </html>
+        <style>
+            input{
+                margin: 5px 5px 5px 5px;
+                display: inline;
+            }
+
+            button{
+                height: 50px;
+                font-style: italic;
+                font-size: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Soil Analyzer</h1>
+        <h4>Enter the following parameters:</h4>
+        <form action="#" id="form">
+            <div id="temperature">
+                Minimum temperature: <input type="text" name="mintemp">
+                Maximum temperature: <input type="text" name="maxtemp">
+            </div>
+            <br>
+            <div id="light">
+                Minimum light: <input type="text" name="minlight">
+                Maximum light: <input type="text" name="maxlight">
+            </div>
+            <br>
+            <div id="moisture">
+                Minimum moisture: <input type="text" name="minmois">
+                Maximum moisture: <input type="text" name="maxmois">
+            </div>
+            <br>
+        </form>
+        <button id="submit" onclick="captureSend()">Test Soil</button>
+        <script>
+        var connection = new WebSocket('ws://'+location.hostname+':81/');
+        function captureSend(){
+            var formdata = document.getElementById('form');
+            var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
+            connection.send(jsondata);
+        }
+        </script>
+    </body>
+</html>
   )=====";
   //send_P -> sends the webpage saved in flash memory
     request->send_P(200,"text/html",webpage);
   });
 
-  server.on("/led/on",[](AsyncWebServerRequest *request){
-    digitalWrite(LED1,HIGH);
-    //request->send(200,"text/html","LED ON");
-    request->redirect("/");
-  });
-
-  server.on("/led/off",[](AsyncWebServerRequest *request){
-    digitalWrite(LED1,LOW);
-    //request->send(200,"text/html","LED OFF");
-    request->redirect("/");
-  });
-
    websockets.onEvent(webSocketEvent); //call the webSocketEvent() function on any websocket event 
-  
-  
+    
   //start servers
   server.begin(); //start the web server
   MDNS.begin("soilanalyzer"); //set up local domain name server with hostname -> soilanalyzer.local
