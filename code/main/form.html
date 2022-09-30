@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home</title>
+        <style>
+            input{
+                margin: 5px 5px 5px 5px;
+                display: inline;
+            }
+
+            button{
+                height: 50px;
+                font-style: italic;
+                font-size: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Soil Analyzer</h1>
+        <h4>Enter the following parameters:</h4>
+        <form action="#" id="form">
+            <div id="temperature">
+                Minimum temperature: <input type="text" name="mintemp">
+                Maximum temperature: <input type="text" name="maxtemp">
+            </div>
+            <br>
+            <div id="light">
+                Minimum light: <input type="text" name="minlight">
+                Maximum light: <input type="text" name="maxlight">
+            </div>
+            <br>
+            <div id="moisture">
+                Minimum moisture: <input type="text" name="minmois">
+                Maximum moisture: <input type="text" name="maxmois">
+            </div>
+            <br>
+        </form>
+        <button id="submit" onclick="captureSend()">Test Soil</button>
+        <script>
+        //var connection = new WebSocket('ws://'+location.hostname+':81/');
+        function captureSend(){
+            var formdata = document.getElementById('form');
+            var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
+            formdata["mintemp"].value = "";
+            formdata["maxtemp"].value = "";
+            formdata["minlight"].value = "";
+            formdata["maxlight"].value= "";
+            formdata["minmois"].value = "";
+            formdata["maxmois"].value = "";
+            //connection.send(jsondata);
+            window.location = "http://"+location.hostname+"/results";
+        }
+        </script>
+    </body>
+</html>
