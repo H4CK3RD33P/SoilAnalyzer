@@ -103,7 +103,15 @@ void setup() {
         function captureSend(){
             var formdata = document.getElementById('form');
             var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
+            var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
+            formdata["mintemp"].value = "";
+            formdata["maxtemp"].value = "";
+            formdata["minlight"].value = "";
+            formdata["maxlight"].value= "";
+            formdata["minmois"].value = "";
+            formdata["maxmois"].value = "";
             connection.send(jsondata);
+            window.location = "http://"+location.hostname+"/results";
         }
         </script>
     </body>
@@ -113,6 +121,10 @@ void setup() {
     request->send_P(200,"text/html",webpage);
   });
 
+  server.on("/results",[](AsyncWebServerRequest *request){ 
+    request->send(200,"text/html","RESULT PAGE");    
+  });
+  
    websockets.onEvent(webSocketEvent); //call the webSocketEvent() function on any websocket event 
     
   //start servers
