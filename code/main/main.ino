@@ -1,6 +1,7 @@
 #include <ESPAsyncWebServer.h> //importing the Asynchronous server header
 #include <ESPmDNS.h>
 #include <WebSocketsServer.h>
+#include <ArduinoJson.h>
 #define LED1 13
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
@@ -30,12 +31,20 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
     String message = String((char*)(payload));
     Serial.println(message);
 
-  if (message=="LED is on"){
-    digitalWrite(LED1,HIGH);
-  }
-  if(message=="LED is off"){
-    digitalWrite(LED1,LOW);
-  }
+    DynamicJsonDocument doc(200); 
+    DeserializationError error = deserializeJson(doc,message); 
+    //Deserialize the JSON data into doc object
+    //Store the error into error object (if any)
+    if (error){ //if there is any error, print it
+      Serial.print("Deserialization failed");
+      Serial.println(error.c_str());
+      return;
+    }
+
+    int LEDstatus = doc["LED"]; //Get the status from deserialized JSON
+    digitalWrite(LED1,LEDstatus); //turn on or off according to LEDstatus
+    //1 -> HIGH | 0 -> LOW
+  
 
   }
 }
@@ -63,14 +72,22 @@ void setup() {
     <html>
     <script>
       var connection = new WebSocket('ws://'+location.hostname+':81/');
+      var LEDstatus = 0;
       function ledon(){
+        LEDstatus = 1;
         console.log("LED is on");
-        connection.send("LED is on");
+        sendData();
       }
 
       function ledoff(){
+        LEDstatus = 0;
         console.log("LED is off");
-        connection.send("LED is off");
+        sendData();
+      }
+
+      function sendData(){
+        var fulldata = '{"LED":'+LEDstatus+'}';
+        connection.send(fulldata);
       }
 
     </script>
