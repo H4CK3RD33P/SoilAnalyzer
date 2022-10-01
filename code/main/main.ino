@@ -90,35 +90,100 @@ void setup() {
                 height: 50px;
                 font-style: italic;
                 font-size: 20px;
+                box-shadow: inset 0 0 0 0 purple;
+                margin: 10px 10px 10px 10px;
+                height: 40px;
+                border-radius: 12px;
+                transition: ease-out 0.5s;
+                font-size: 15px;
+                text-transform: uppercase;
+                letter-spacing: 3px;
+                font-weight: bolder;
+                color:black
+            }
+
+            button:hover{
+	            box-shadow: inset 300px 0 0 0 skyblue;
+            }	
+
+            h1{
+                padding-bottom: 10px;
+                background: -webkit-linear-gradient(#cb356b, #ffd608);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            h4{
+                padding-bottom: 10px;
+                background: -webkit-linear-gradient(#b24592, #ffd608);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            #container{
+                width: 750px;
+                background-color: rgba(32, 29, 29, 0.7);
+                color: white;
+                padding: 30px 30px 30px 30px;
+                text-align: left;
+                border-radius: 20px;
+                border: 3px solid orange;
+                font-size:110%;
+                display: block;
+                align-items: center;
+                justify-content: center;
+                width: 800px;
+                top: 150px;
+                bottom:100px;
+                left: 0;
+                right: 0;
+                margin: auto;
+                margin-top: 50px;
+            }
+            
+            #bg{
+                background: rgb(2,0,36);
+                background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(98,9,121,1) 35%, rgba(0,212,255,1) 100%);
+                background-size: cover;
+                height: 95vh;
+                background-position:absolute;
+                padding: 10px 10px 10px 10px;
+            }
+            
+            input{
+                border-radius: 8px;
+                border:3px solid yellowgreen
             }
         </style>
     </head>
     <body>
-        <h1>Soil Analyzer</h1>
-        <h4>Enter the following parameters:</h4>
-        <form action="#" id="form">
-            <div id="temperature">
-                Minimum temperature: <input type="text" name="mintemp">
-                Maximum temperature: <input type="text" name="maxtemp">
+        <div id="bg">
+            <div id="container">
+                <h1>Soil Analyzer</h1>
+                <h4>Enter the following parameters:</h4>
+                <form action="#" id="form">
+                    <div id="temperature">
+                        Minimum temperature: <input type="text" name="mintemp">
+                        Maximum temperature: <input type="text" name="maxtemp">
+                    </div>
+                    <br>
+                    <div id="light">
+                        Minimum light: <input type="text" name="minlight">
+                        Maximum light: <input type="text" name="maxlight">
+                    </div>
+                    <br>
+                    <div id="moisture">
+                        Minimum moisture: <input type="text" name="minmois">
+                        Maximum moisture: <input type="text" name="maxmois">
+                    </div>
+                    <br>
+                </form>
+                <button id="submit" onclick="captureSend()">Test Soil</button>
             </div>
-            <br>
-            <div id="light">
-                Minimum light: <input type="text" name="minlight">
-                Maximum light: <input type="text" name="maxlight">
-            </div>
-            <br>
-            <div id="moisture">
-                Minimum moisture: <input type="text" name="minmois">
-                Maximum moisture: <input type="text" name="maxmois">
-            </div>
-            <br>
-        </form>
-        <button id="submit" onclick="captureSend()">Test Soil</button>
+        </div>
         <script>
         var connection = new WebSocket('ws://'+location.hostname+':81/');
         function captureSend(){
             var formdata = document.getElementById('form');
-            var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
             var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
             formdata["mintemp"].value = "";
             formdata["maxtemp"].value = "";
