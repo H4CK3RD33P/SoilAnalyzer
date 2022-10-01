@@ -2,10 +2,19 @@
 #include <ESPmDNS.h>
 #include <WebSocketsServer.h>
 #include <ArduinoJson.h>
+#include <Ticker.h>
+#define MOISTURE_SENSOR 34
+
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
 WebSocketsServer websockets(81); //web sockets server listening at port 81
+Ticker timer;
 
+
+void sendSensorVal(); //this function will be called after an interval of 1 second in loop [declared below]
+
+int mintemp,maxtemp,minlight,maxlight,minmois,maxmois;
+String moistest,lighttest,temptest;
 //defining function for invalid requests
 void notFound(AsyncWebServerRequest *request){
   request->send(404,"text/html","Not found");
@@ -39,6 +48,12 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
       Serial.println(error.c_str());
       return;
     }
+    mintemp = doc["mintemp"];
+    maxtemp = doc["maxtemp"];
+    minlight = doc["minlight"];
+    maxlight = doc["maxlight"];
+    minmois = doc["minmois"];
+    maxmois = doc["maxmois"];
   }
 }
 
@@ -51,6 +66,7 @@ void setup() {
 
   
   //route
+  //home page
   server.on("/",[](AsyncWebServerRequest *request){
     //this webpage will be sent upon receiving the request at root
     //R"=====()=====" is raw string
@@ -121,12 +137,52 @@ void setup() {
     request->send_P(200,"text/html",webpage);
   });
 
+  //results page
   server.on("/results",[](AsyncWebServerRequest *request){ 
-    request->send(200,"text/html","RESULT PAGE");    
+      char resultpage[] PROGMEM = R"=====(
+        <!DOCTYPE html>
+<html>
+    <head>
+        <title>Results</title>
+        <style>
+            #moisval,#moistest{
+                display: inline;
+                margin: 10px;    
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Results</h1>
+        <div id="mois">
+        <h3>Soil Moisture: </h3>
+        <meter id="moismtr" value="1000" min="0" max="4095"></meter>
+        <h3 id="moisval">1000</h3>
+        <h3 id="moistest">FAIL</h3>
+        </div>
+        <script>
+            var moisdata = 0;
+            var moistest = "";
+            var connection = new WebSocket('ws://'+location.hostname+':81/');
+            connection.onmessage = function(event){
+                var fulldata = event.data;
+                console.log(fulldata);
+                var data = JSON.parse(fulldata);
+                moisdata = data.moisdata;
+                moistest = data.moistest;
+                document.getElementById("moismtr").value = moisdata;
+                document.getElementById("moisval").innerHTML = moisdata;
+                document.getElementById("moistest").innerHTML = moistest;
+            }
+        </script>
+    </body>
+</html>
+      )=====";
+
+    request->send_P(200,"text/html",resultpage);
   });
   
-   websockets.onEvent(webSocketEvent); //call the webSocketEvent() function on any websocket event 
-    
+  websockets.onEvent(webSocketEvent); //call the webSocketEvent() function on any websocket event 
+  timer.attach(1,sendSensorVal); //attach timer with sendSensorVal with interval of 1 [this function will be called after every 1 second]
   //start servers
   server.begin(); //start the web server
   MDNS.begin("soilanalyzer"); //set up local domain name server with hostname -> soilanalyzer.local
@@ -137,4 +193,23 @@ void loop() {
   // put your main code here, to run repeatedly:
   websockets.loop(); //continuously monitor 
 
+}
+
+//function declaration of sendSensorVal
+void sendSensorVal(){
+  int moisdata = analogRead(MOISTURE_SENSOR);
+  if (moisdata>=minmois && moisdata<=maxmois){
+    moistest = "PASS";
+  }
+  else{
+    moistest = "FAIL";
+  }
+  String JSON_data = "{\"moisdata\":";
+          JSON_data+= moisdata;
+          JSON_data+=",\"moistest\":";
+          JSON_data+="\""+moistest+"\"";
+          JSON_data+="}";
+  
+  Serial.println(JSON_data);
+  websockets.broadcastTXT(JSON_data); //send the JSON data to all clients i.e broadcast      
 }
