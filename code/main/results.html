@@ -1,13 +1,36 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>
-
-        </title>
+        <title>Results</title>
+        <style>
+            #moisval,#moistest{
+                display: inline;
+                margin: 10px;    
+            }
+        </style>
     </head>
     <body>
+        <h1>Results</h1>
+        <div id="mois">
+        <h3>Soil Moisture: </h3>
+        <meter id="moismtr" value="1000" min="0" max="4095"></meter>
+        <h3 id="moisval">1000</h3>
+        <h3 id="moistest">FAIL</h3>
+        </div>
         <script>
-            
+            //var connection = new WebSocket('ws://'+location.hostname+':81/');
+            var moisdata = 0;
+            var moistest = "";
+            connection.onmessage = function(event){
+                var fulldata = event.data;
+                console.log(fulldata);
+                var data = JSON.parse(fulldata);
+                moisdata = data.moisdata;
+                moistest = data.moistest;
+                document.getElementById("moismtr").value = moisdata;
+                document.getElementById("moisval").innerHTML = moisdata;
+                document.getElementById("moistest").innerHTML = moistest;
+            }
         </script>
     </body>
 </html>
