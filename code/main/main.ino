@@ -214,20 +214,81 @@ void setup() {
                 display: inline;
                 margin: 10px;    
             }
+            
+            #bg{
+                background: rgb(2,0,36);
+                background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(98,9,121,1) 35%, rgba(0,212,255,1) 100%);
+                background-size: cover;
+                height: 95vh;
+                background-position:absolute;
+                padding: 10px 10px 10px 10px;
+            }
+
+            #container{
+                width: 750px;
+                background-color: rgba(32, 29, 29, 0.7);
+                color: white;
+                padding: 30px 30px 30px 30px;
+                text-align: center;
+                border-radius: 20px;
+                border: 3px solid orange;
+                font-size:110%;
+                display: block;
+                align-items: center;
+                justify-content: center;
+                width: 800px;
+                top: 150px;
+                bottom:100px;
+                left: 0;
+                right: 0;
+                margin: auto;
+                margin-top: 50px;
+            }
+
+            #container div{
+                width: 250px;
+                background-color: rgba(78, 35, 180, 0.575);
+                color: white;
+                padding: 30px 30px 30px 30px;
+                text-align: center;
+                border-radius: 20px;
+                border: 3px dashed rgba(255, 0, 200, 0.384);
+                font-size:110%;
+                display: block;
+                align-items: center;
+                justify-content: center;
+                top: 150px;
+                bottom:100px;
+                left: 0;
+                right: 0;
+                margin: auto;
+                margin-top: 50px;
+            }
+
+            h1{
+                padding-bottom: 10px;
+                background: -webkit-linear-gradient(#cb356b, #ffd608);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
         </style>
     </head>
     <body>
-        <h1>Results</h1>
-        <div id="mois">
-        <h3>Soil Moisture: </h3>
-        <meter id="moismtr" value="1000" min="0" max="4095"></meter>
-        <h3 id="moisval">1000</h3>
-        <h3 id="moistest">FAIL</h3>
+        <div id="bg">
+            <div id="container">
+                <h1>Results</h1>
+                <div id="mois">
+                <h3>Soil Moisture: </h3>
+                <meter id="moismtr" value="1000" min="0" max="4095"></meter>
+                <h3 id="moisval">1000</h3>
+                <h3 id="moistest">FAIL</h3>
+                </div>
+            </div>
         </div>
         <script>
+            var connection = new WebSocket('ws://'+location.hostname+':81/');
             var moisdata = 0;
             var moistest = "";
-            var connection = new WebSocket('ws://'+location.hostname+':81/');
             connection.onmessage = function(event){
                 var fulldata = event.data;
                 console.log(fulldata);
