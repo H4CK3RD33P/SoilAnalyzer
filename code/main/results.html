@@ -3,7 +3,7 @@
     <head>
         <title>Results</title>
         <style>
-            #moisval,#moistest{
+            #moisval,#moistest,#tempval,#temptest,#lightval,#lighttest{
                 display: inline;
                 margin: 10px;    
             }
@@ -12,7 +12,7 @@
                 background: rgb(2,0,36);
                 background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(98,9,121,1) 35%, rgba(0,212,255,1) 100%);
                 background-size: cover;
-                height: 95vh;
+                height: 2055vh;
                 background-position:absolute;
                 padding: 10px 10px 10px 10px;
             }
@@ -70,11 +70,23 @@
         <div id="bg">
             <div id="container">
                 <h1>Results</h1>
+                <div id="temp">
+                    <h3>Soil Temperature: </h3>
+                    <meter id="tempmtr" value="1000" min="0" max="4095"></meter>
+                    <h3 id="tempval">1000</h3>
+                    <h3 id="temptest">FAIL</h3>
+                </div>
                 <div id="mois">
-                <h3>Soil Moisture: </h3>
-                <meter id="moismtr" value="1000" min="0" max="4095"></meter>
-                <h3 id="moisval">1000</h3>
-                <h3 id="moistest">FAIL</h3>
+                    <h3>Soil Moisture: </h3>
+                    <meter id="moismtr" value="1000" min="0" max="4095"></meter>
+                    <h3 id="moisval">1000</h3>
+                    <h3 id="moistest">FAIL</h3>
+                </div>
+                <div id="light">
+                    <h3>Atmospheric Light: </h3>
+                    <meter id="lightmtr" value="1000" min="0" max="4095"></meter>
+                    <h3 id="lightval">1000</h3>
+                    <h3 id="lighttest">FAIL</h3>
                 </div>
             </div>
         </div>
@@ -82,15 +94,38 @@
             //var connection = new WebSocket('ws://'+location.hostname+':81/');
             var moisdata = 0;
             var moistest = "";
+
+            var tempdata = 0;
+            var temptest = "";
+
+            var lightdata = 0;
+            var lighttest = "";
+
             connection.onmessage = function(event){
                 var fulldata = event.data;
                 console.log(fulldata);
                 var data = JSON.parse(fulldata);
+
                 moisdata = data.moisdata;
                 moistest = data.moistest;
+
+                tempdata = data.tempdata;
+                temptest = data.temptest;
+
+                lightdata = data.lightdata;
+                lighttest = data.lighttest;
+
                 document.getElementById("moismtr").value = moisdata;
                 document.getElementById("moisval").innerHTML = moisdata;
                 document.getElementById("moistest").innerHTML = moistest;
+
+                document.getElementById("tempmtr").value = tempdata;
+                document.getElementById("tempval").innerHTML = tempdata;
+                document.getElementById("temptest").innerHTML = temptest;
+
+                document.getElementById("lightmtr").value = lightdata;
+                document.getElementById("lightval").innerHTML = lightdata;
+                document.getElementById("lighttest").innerHTML = lighttest;
             }
         </script>
     </body>
