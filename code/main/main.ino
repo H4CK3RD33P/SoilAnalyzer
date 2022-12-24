@@ -221,7 +221,7 @@ void setup() {
     <head>
         <title>Results</title>
         <style>
-            #moisval,#moistest{
+            #moisval,#moistest,#tempval,#temptest{
                 display: inline;
                 margin: 10px;    
             }
@@ -289,10 +289,16 @@ void setup() {
             <div id="container">
                 <h1>Results</h1>
                 <div id="mois">
-                <h3>Soil Moisture: </h3>
-                <meter id="moismtr" value="1000" min="0" max="4095"></meter>
-                <h3 id="moisval">1000</h3>
-                <h3 id="moistest">FAIL</h3>
+                  <h3>Soil Moisture: </h3>
+                  <meter id="moismtr" value="1000" min="0" max="4095"></meter>
+                  <h3 id="moisval">1000</h3>
+                  <h3 id="moistest">FAIL</h3>
+                </div>
+                <div id="temp">
+                    <h3>Soil Temperature: </h3>
+                    <meter id="tempmtr" value="1000" min="0" max="4095"></meter>
+                    <h3 id="tempval">1000</h3>
+                    <h3 id="temptest">FAIL</h3>
                 </div>
             </div>
         </div>
@@ -300,15 +306,28 @@ void setup() {
             var connection = new WebSocket('ws://'+location.hostname+':81/');
             var moisdata = 0;
             var moistest = "";
+
+            var tempdata = 0;
+            var temptest = "";
+
             connection.onmessage = function(event){
                 var fulldata = event.data;
                 console.log(fulldata);
                 var data = JSON.parse(fulldata);
+
                 moisdata = data.moisdata;
                 moistest = data.moistest;
+
+                tempdata = data.tempdata;
+                temptest = data.temptest;
+
                 document.getElementById("moismtr").value = moisdata;
                 document.getElementById("moisval").innerHTML = moisdata;
                 document.getElementById("moistest").innerHTML = moistest;
+
+                document.getElementById("tempmtr").value = tempdata;
+                document.getElementById("tempval").innerHTML = tempdata;
+                document.getElementById("temptest").innerHTML = temptest;
             }
         </script>
     </body>
