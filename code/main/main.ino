@@ -3,14 +3,20 @@
 #include <WebSocketsServer.h>
 #include <ArduinoJson.h>
 #include <Ticker.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 #define MOISTURE_SENSOR 34
-#define MOISTURE_LIGHT 2
+#define MOISTURE_LIGHT 15
+#define TEMP_SENSOR 2
+#define TEMP_LIGHT 4
 
 
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
 WebSocketsServer websockets(81); //web sockets server listening at port 81
 Ticker timer;
+OneWire onewire(TEMP_SENSOR);
+DallasTemperature tempsensor(&onewire);
 
 
 void sendSensorVal(); //this function will be called after an interval of 1 second in loop [declared below]
@@ -66,6 +72,8 @@ void setup() {
   Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
   server.onNotFound(notFound); //calls the notFound() function upon requesting invalid page
   pinMode(MOISTURE_LIGHT, OUTPUT);
+  pinMode(TEMP_LIGHT,OUTPUT);
+  tempsensor.begin();
 
   
   //route
@@ -335,10 +343,25 @@ void sendSensorVal(){
     moistest = "FAIL";
     digitalWrite(MOISTURE_LIGHT,LOW);
   }
+
+  tempsensor.requestTemperatures();
+  float tempdata  = tempsensor.getTempCByIndex(0);
+  if(tempdata>=mintemp && tempdata<=maxtemp){
+    temptest = "PASS";
+    digitalWrite(TEMP_LIGHT,HIGH);
+  }
+  else{
+    temptest = "FAIL";
+    digitalWrite(TEMP_LIGHT,LOW);
+  }
   String JSON_data = "{\"moisdata\":";
           JSON_data+= moisdata;
           JSON_data+=",\"moistest\":";
           JSON_data+="\""+moistest+"\"";
+          JSON_data+=",\"tempdata\":";
+          JSON_data+= tempdata;  
+          JSON_data+=",\"temptest\":";
+          JSON_data+="\""+temptest+"\"";
           JSON_data+="}";
   
   Serial.println(JSON_data);
