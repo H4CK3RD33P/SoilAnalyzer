@@ -4,6 +4,8 @@
 #include <ArduinoJson.h>
 #include <Ticker.h>
 #define MOISTURE_SENSOR 34
+#define MOISTURE_LIGHT 2
+
 
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
@@ -63,6 +65,7 @@ void setup() {
   Serial.println("IP: "); 
   Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
   server.onNotFound(notFound); //calls the notFound() function upon requesting invalid page
+  pinMode(MOISTURE_LIGHT, OUTPUT);
 
   
   //route
@@ -326,9 +329,11 @@ void sendSensorVal(){
   int moisdata = analogRead(MOISTURE_SENSOR);
   if (moisdata>=minmois && moisdata<=maxmois){
     moistest = "PASS";
+    digitalWrite(MOISTURE_LIGHT,HIGH);
   }
   else{
     moistest = "FAIL";
+    digitalWrite(MOISTURE_LIGHT,LOW);
   }
   String JSON_data = "{\"moisdata\":";
           JSON_data+= moisdata;
