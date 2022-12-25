@@ -9,6 +9,8 @@
 #define MOISTURE_LIGHT 15
 #define TEMP_SENSOR 2
 #define TEMP_LIGHT 4
+#define PHOTO_SENSOR 33
+#define PHOTO_LIGHT 5
 
 
 
@@ -73,6 +75,7 @@ void setup() {
   server.onNotFound(notFound); //calls the notFound() function upon requesting invalid page
   pinMode(MOISTURE_LIGHT, OUTPUT);
   pinMode(TEMP_LIGHT,OUTPUT);
+  pinMode(PHOTO_LIGHT,OUTPUT);
   tempsensor.begin();
 
   
@@ -373,6 +376,17 @@ void sendSensorVal(){
     temptest = "FAIL";
     digitalWrite(TEMP_LIGHT,LOW);
   }
+
+  int lightdata = analogRead(PHOTO_SENSOR);
+  if(lightdata>=minlight && lightdata<=maxlight){
+    lighttest = "PASS";
+    digitalWrite(PHOTO_LIGHT,HIGH);
+  }
+  else{
+    lighttest = "FAIL";
+    digitalWrite(PHOTO_LIGHT,LOW);
+  }
+
   String JSON_data = "{\"moisdata\":";
           JSON_data+= moisdata;
           JSON_data+=",\"moistest\":";
@@ -381,6 +395,10 @@ void sendSensorVal(){
           JSON_data+= tempdata;  
           JSON_data+=",\"temptest\":";
           JSON_data+="\""+temptest+"\"";
+          JSON_data+=",\"lightdata\":";
+          JSON_data+= lightdata;
+          JSON_data+=",\"lighttest\":";
+          JSON_data+="\""+lighttest+"\"";
           JSON_data+="}";
   
   Serial.println(JSON_data);
