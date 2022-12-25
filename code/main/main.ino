@@ -224,7 +224,7 @@ void setup() {
     <head>
         <title>Results</title>
         <style>
-            #moisval,#moistest,#tempval,#temptest{
+            #moisval,#moistest,#tempval,#temptest,#lightval,#lighttest{
                 display: inline;
                 margin: 10px;    
             }
@@ -303,6 +303,12 @@ void setup() {
                     <h3 id="tempval">1000</h3>
                     <h3 id="temptest">FAIL</h3>
                 </div>
+                <div id="light">
+                    <h3>Atmospheric Light: </h3>
+                    <meter id="lightmtr" value="1000" min="0" max="4095"></meter>
+                    <h3 id="lightval">1000</h3>
+                    <h3 id="lighttest">FAIL</h3>
+                </div>
             </div>
         </div>
         <script>
@@ -312,6 +318,9 @@ void setup() {
 
             var tempdata = 0;
             var temptest = "";
+
+            var lightdata = 0;
+            var lighttest = "";
 
             connection.onmessage = function(event){
                 var fulldata = event.data;
@@ -324,6 +333,9 @@ void setup() {
                 tempdata = data.tempdata;
                 temptest = data.temptest;
 
+                lightdata = data.lightdata;
+                lighttest = data.lighttest;
+
                 document.getElementById("moismtr").value = moisdata;
                 document.getElementById("moisval").innerHTML = moisdata;
                 document.getElementById("moistest").innerHTML = moistest;
@@ -331,6 +343,10 @@ void setup() {
                 document.getElementById("tempmtr").value = tempdata;
                 document.getElementById("tempval").innerHTML = tempdata;
                 document.getElementById("temptest").innerHTML = temptest;
+
+                document.getElementById("lightmtr").value = lightdata;
+                document.getElementById("lightval").innerHTML = lightdata;
+                document.getElementById("lighttest").innerHTML = lighttest;
             }
         </script>
     </body>
