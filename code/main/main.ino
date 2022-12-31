@@ -9,7 +9,13 @@
 #define MOISTURE_LIGHT 15
 #define TEMP_SENSOR 2
 #define TEMP_LIGHT 4
+#define PHOTO_SENSOR 33
+#define PHOTO_LIGHT 5
 
+const int light_low = 4096;
+const int light_high = 0;
+const int mois_low = 4095;
+const int mois_high = 1850;
 
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
@@ -73,6 +79,7 @@ void setup() {
   server.onNotFound(notFound); //calls the notFound() function upon requesting invalid page
   pinMode(MOISTURE_LIGHT, OUTPUT);
   pinMode(TEMP_LIGHT,OUTPUT);
+  pinMode(PHOTO_LIGHT,OUTPUT);
   tempsensor.begin();
 
   
@@ -131,7 +138,6 @@ void setup() {
                 -webkit-text-fill-color: transparent;
             }
             #container{
-                width: 750px;
                 background-color: rgba(32, 29, 29, 0.7);
                 color: white;
                 padding: 30px 30px 30px 30px;
@@ -142,7 +148,7 @@ void setup() {
                 display: block;
                 align-items: center;
                 justify-content: center;
-                width: 800px;
+                width: 850px;
                 top: 150px;
                 bottom:100px;
                 left: 0;
@@ -164,6 +170,12 @@ void setup() {
                 border-radius: 8px;
                 border:3px solid yellowgreen
             }
+
+            .desc{
+                font-style: italic;
+                color:#ffd608;
+                font-weight: 600;
+            }
         </style>
     </head>
     <body>
@@ -173,37 +185,50 @@ void setup() {
                 <h4>Enter the following parameters:</h4>
                 <form action="#" id="form">
                     <div id="temperature">
-                        Minimum temperature: <input type="text" name="mintemp">
-                        Maximum temperature: <input type="text" name="maxtemp">
+                        Minimum temperature (in *C): <input type="text" name="mintemp">
+                        Maximum temperature (in *C): <input type="text" name="maxtemp">
+                        <br>
+                        <small class="desc">(temperature must be between 1*C and 100*C)</small>
                     </div>
                     <br>
                     <div id="light">
-                        Minimum light: <input type="text" name="minlight">
-                        Maximum light: <input type="text" name="maxlight">
+                        Minimum light (in %): <input type="text" name="minlight">
+                        Maximum light (in %): <input type="text" name="maxlight">
+                        <br>
+                        <small class="desc">(light must be between 0% and 100%)</small>
                     </div>
                     <br>
                     <div id="moisture">
-                        Minimum moisture: <input type="text" name="minmois">
-                        Maximum moisture: <input type="text" name="maxmois">
+                        Minimum moisture (in %): <input type="text" name="minmois">
+                        Maximum moisture (in %): <input type="text" name="maxmois">
+                        <br>
+                        <small class="desc">(moisture must be between 1% and 100%)</small>
                     </div>
                     <br>
                 </form>
                 <button id="submit" onclick="captureSend()">Test Soil</button>
+                <h1 id="error"></h1>
             </div>
         </div>
         <script>
         var connection = new WebSocket('ws://'+location.hostname+':81/');
         function captureSend(){
             var formdata = document.getElementById('form');
-            var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
-            formdata["mintemp"].value = "";
-            formdata["maxtemp"].value = "";
-            formdata["minlight"].value = "";
-            formdata["maxlight"].value= "";
-            formdata["minmois"].value = "";
-            formdata["maxmois"].value = "";
-            connection.send(jsondata);
-            window.location = "http://"+location.hostname+"/results";
+            if(formdata["mintemp"].value>0 && formdata["maxtemp"].value<100 && formdata["minmois"].value > 0 && formdata["maxmois"].value <=100 && formdata["minlight"].value >=0 && formdata["maxlight"].value <=100){
+              var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
+              formdata["mintemp"].value = "";
+              formdata["maxtemp"].value = "";
+              formdata["minlight"].value = "";
+              formdata["maxlight"].value= "";
+              formdata["minmois"].value = "";
+              formdata["maxmois"].value = "";
+              connection.send(jsondata);
+              window.location = "http://"+location.hostname+"/results";
+            }
+            else{
+              var errormsg = document.getElementById("error");
+              errormsg.innerText = "Invalid parameters";
+            }
         }
         </script>
     </body>
@@ -221,7 +246,7 @@ void setup() {
     <head>
         <title>Results</title>
         <style>
-            #moisval,#moistest,#tempval,#temptest{
+            #moisval,#moistest,#tempval,#temptest,#lightval,#lighttest{
                 display: inline;
                 margin: 10px;    
             }
@@ -230,7 +255,7 @@ void setup() {
                 background: rgb(2,0,36);
                 background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(98,9,121,1) 35%, rgba(0,212,255,1) 100%);
                 background-size: cover;
-                height: 95vh;
+                height: 150vh;
                 background-position:absolute;
                 padding: 10px 10px 10px 10px;
             }
@@ -257,7 +282,7 @@ void setup() {
             }
 
             #container div{
-                width: 250px;
+                width: 280px;
                 background-color: rgba(78, 35, 180, 0.575);
                 color: white;
                 padding: 30px 30px 30px 30px;
@@ -290,15 +315,21 @@ void setup() {
                 <h1>Results</h1>
                 <div id="mois">
                   <h3>Soil Moisture: </h3>
-                  <meter id="moismtr" value="1000" min="0" max="4095"></meter>
-                  <h3 id="moisval">1000</h3>
+                  <meter id="moismtr" value="100" min="0" max="100"></meter>
+                  <h3 id="moisval">100</h3>%
                   <h3 id="moistest">FAIL</h3>
                 </div>
                 <div id="temp">
                     <h3>Soil Temperature: </h3>
-                    <meter id="tempmtr" value="1000" min="0" max="4095"></meter>
-                    <h3 id="tempval">1000</h3>
+                    <meter id="tempmtr" value="100" min="0" max="100"></meter>
+                    <h3 id="tempval">100</h3>*C
                     <h3 id="temptest">FAIL</h3>
+                </div>
+                <div id="light">
+                    <h3>Atmospheric Light: </h3>
+                    <meter id="lightmtr" value="100" min="0" max="100"></meter>
+                    <h3 id="lightval">100</h3>%
+                    <h3 id="lighttest">FAIL</h3>
                 </div>
             </div>
         </div>
@@ -309,6 +340,9 @@ void setup() {
 
             var tempdata = 0;
             var temptest = "";
+
+            var lightdata = 0;
+            var lighttest = "";
 
             connection.onmessage = function(event){
                 var fulldata = event.data;
@@ -321,6 +355,9 @@ void setup() {
                 tempdata = data.tempdata;
                 temptest = data.temptest;
 
+                lightdata = data.lightdata;
+                lighttest = data.lighttest;
+
                 document.getElementById("moismtr").value = moisdata;
                 document.getElementById("moisval").innerHTML = moisdata;
                 document.getElementById("moistest").innerHTML = moistest;
@@ -328,6 +365,10 @@ void setup() {
                 document.getElementById("tempmtr").value = tempdata;
                 document.getElementById("tempval").innerHTML = tempdata;
                 document.getElementById("temptest").innerHTML = temptest;
+
+                document.getElementById("lightmtr").value = lightdata;
+                document.getElementById("lightval").innerHTML = lightdata;
+                document.getElementById("lighttest").innerHTML = lighttest;
             }
         </script>
     </body>
@@ -353,8 +394,9 @@ void loop() {
 
 //function declaration of sendSensorVal
 void sendSensorVal(){
-  int moisdata = analogRead(MOISTURE_SENSOR);
-  if (moisdata>=minmois && moisdata<=maxmois){
+  int moisdata_raw = analogRead(MOISTURE_SENSOR);
+  int moisdata = map(moisdata_raw,mois_low,mois_high,0,100);
+  if (moisdata>=minmois && moisdata<=maxmois && moisdata!=0){
     moistest = "PASS";
     digitalWrite(MOISTURE_LIGHT,HIGH);
   }
@@ -373,6 +415,19 @@ void sendSensorVal(){
     temptest = "FAIL";
     digitalWrite(TEMP_LIGHT,LOW);
   }
+
+  int lightdata_raw = analogRead(PHOTO_SENSOR);
+  int lightdata = map(lightdata_raw,light_low,light_high,0,100);
+
+  if(lightdata>=minlight && lightdata<=maxlight){
+    lighttest = "PASS";
+    digitalWrite(PHOTO_LIGHT,HIGH);
+  }
+  else{
+    lighttest = "FAIL";
+    digitalWrite(PHOTO_LIGHT,LOW);
+  }
+
   String JSON_data = "{\"moisdata\":";
           JSON_data+= moisdata;
           JSON_data+=",\"moistest\":";
@@ -381,6 +436,10 @@ void sendSensorVal(){
           JSON_data+= tempdata;  
           JSON_data+=",\"temptest\":";
           JSON_data+="\""+temptest+"\"";
+          JSON_data+=",\"lightdata\":";
+          JSON_data+= lightdata;
+          JSON_data+=",\"lighttest\":";
+          JSON_data+="\""+lighttest+"\"";
           JSON_data+="}";
   
   Serial.println(JSON_data);
