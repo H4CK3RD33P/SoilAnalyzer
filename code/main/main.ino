@@ -138,7 +138,6 @@ void setup() {
                 -webkit-text-fill-color: transparent;
             }
             #container{
-                width: 750px;
                 background-color: rgba(32, 29, 29, 0.7);
                 color: white;
                 padding: 30px 30px 30px 30px;
@@ -149,7 +148,7 @@ void setup() {
                 display: block;
                 align-items: center;
                 justify-content: center;
-                width: 800px;
+                width: 850px;
                 top: 150px;
                 bottom:100px;
                 left: 0;
@@ -171,6 +170,12 @@ void setup() {
                 border-radius: 8px;
                 border:3px solid yellowgreen
             }
+
+            .desc{
+                font-style: italic;
+                color:#ffd608;
+                font-weight: 600;
+            }
         </style>
     </head>
     <body>
@@ -180,37 +185,50 @@ void setup() {
                 <h4>Enter the following parameters:</h4>
                 <form action="#" id="form">
                     <div id="temperature">
-                        Minimum temperature: <input type="text" name="mintemp">
-                        Maximum temperature: <input type="text" name="maxtemp">
+                        Minimum temperature (in *C): <input type="text" name="mintemp">
+                        Maximum temperature (in *C): <input type="text" name="maxtemp">
+                        <br>
+                        <small class="desc">(temperature must be between 1*C and 100*C)</small>
                     </div>
                     <br>
                     <div id="light">
-                        Minimum light: <input type="text" name="minlight">
-                        Maximum light: <input type="text" name="maxlight">
+                        Minimum light (in %): <input type="text" name="minlight">
+                        Maximum light (in %): <input type="text" name="maxlight">
+                        <br>
+                        <small class="desc">(light must be between 0% and 100%)</small>
                     </div>
                     <br>
                     <div id="moisture">
-                        Minimum moisture: <input type="text" name="minmois">
-                        Maximum moisture: <input type="text" name="maxmois">
+                        Minimum moisture (in %): <input type="text" name="minmois">
+                        Maximum moisture (in %): <input type="text" name="maxmois">
+                        <br>
+                        <small class="desc">(moisture must be between 0% and 100%)</small>
                     </div>
                     <br>
                 </form>
                 <button id="submit" onclick="captureSend()">Test Soil</button>
+                <h1 id="error"></h1>
             </div>
         </div>
         <script>
         var connection = new WebSocket('ws://'+location.hostname+':81/');
         function captureSend(){
             var formdata = document.getElementById('form');
-            var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
-            formdata["mintemp"].value = "";
-            formdata["maxtemp"].value = "";
-            formdata["minlight"].value = "";
-            formdata["maxlight"].value= "";
-            formdata["minmois"].value = "";
-            formdata["maxmois"].value = "";
-            connection.send(jsondata);
-            window.location = "http://"+location.hostname+"/results";
+            if(formdata["mintemp"].value>0 && formdata["maxtemp"].value<100 && formdata["minmois"].value >= 0 && formdata["maxmois"].value <=100 && formdata["minlight"].value >=0 && formdata["maxlight"].value <=100){
+              var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
+              formdata["mintemp"].value = "";
+              formdata["maxtemp"].value = "";
+              formdata["minlight"].value = "";
+              formdata["maxlight"].value= "";
+              formdata["minmois"].value = "";
+              formdata["maxmois"].value = "";
+              connection.send(jsondata);
+              window.location = "http://"+location.hostname+"/results";
+            }
+            else{
+              var errormsg = document.getElementById("error");
+              errormsg.innerText = "Invalid parameters";
+            }
         }
         </script>
     </body>
@@ -237,7 +255,7 @@ void setup() {
                 background: rgb(2,0,36);
                 background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(98,9,121,1) 35%, rgba(0,212,255,1) 100%);
                 background-size: cover;
-                height: 95vh;
+                height: 150vh;
                 background-position:absolute;
                 padding: 10px 10px 10px 10px;
             }
@@ -264,7 +282,7 @@ void setup() {
             }
 
             #container div{
-                width: 250px;
+                width: 280px;
                 background-color: rgba(78, 35, 180, 0.575);
                 color: white;
                 padding: 30px 30px 30px 30px;
@@ -297,20 +315,20 @@ void setup() {
                 <h1>Results</h1>
                 <div id="mois">
                   <h3>Soil Moisture: </h3>
-                  <meter id="moismtr" value="1000" min="0" max="4095"></meter>
-                  <h3 id="moisval">1000</h3>
+                  <meter id="moismtr" value="100" min="0" max="100"></meter>
+                  <h3 id="moisval">100</h3>%
                   <h3 id="moistest">FAIL</h3>
                 </div>
                 <div id="temp">
                     <h3>Soil Temperature: </h3>
-                    <meter id="tempmtr" value="1000" min="0" max="4095"></meter>
-                    <h3 id="tempval">1000</h3>
+                    <meter id="tempmtr" value="100" min="0" max="100"></meter>
+                    <h3 id="tempval">100</h3>*C
                     <h3 id="temptest">FAIL</h3>
                 </div>
                 <div id="light">
                     <h3>Atmospheric Light: </h3>
-                    <meter id="lightmtr" value="1000" min="0" max="4095"></meter>
-                    <h3 id="lightval">1000</h3>
+                    <meter id="lightmtr" value="100" min="0" max="100"></meter>
+                    <h3 id="lightval">100</h3>%
                     <h3 id="lighttest">FAIL</h3>
                 </div>
             </div>
