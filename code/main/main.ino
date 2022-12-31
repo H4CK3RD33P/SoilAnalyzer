@@ -73,7 +73,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
 
 void setup() {
   Serial.begin(115200); //baud rate
-  WiFi.softAP("esp32",""); //hotspot with SSID and password is empty
+  WiFi.softAP("SoilAnalyzer",""); //hotspot with SSID and password is empty
   Serial.println("IP: "); 
   Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
   server.onNotFound(notFound); //calls the notFound() function upon requesting invalid page
