@@ -15,7 +15,7 @@
 const int light_low = 4096;
 const int light_high = 0;
 const int mois_low = 4095;
-const int mois_high = 950;
+const int mois_high = 1850;
 
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
@@ -202,7 +202,7 @@ void setup() {
                         Minimum moisture (in %): <input type="text" name="minmois">
                         Maximum moisture (in %): <input type="text" name="maxmois">
                         <br>
-                        <small class="desc">(moisture must be between 0% and 100%)</small>
+                        <small class="desc">(moisture must be between 1% and 100%)</small>
                     </div>
                     <br>
                 </form>
@@ -214,7 +214,7 @@ void setup() {
         var connection = new WebSocket('ws://'+location.hostname+':81/');
         function captureSend(){
             var formdata = document.getElementById('form');
-            if(formdata["mintemp"].value>0 && formdata["maxtemp"].value<100 && formdata["minmois"].value >= 0 && formdata["maxmois"].value <=100 && formdata["minlight"].value >=0 && formdata["maxlight"].value <=100){
+            if(formdata["mintemp"].value>0 && formdata["maxtemp"].value<100 && formdata["minmois"].value > 0 && formdata["maxmois"].value <=100 && formdata["minlight"].value >=0 && formdata["maxlight"].value <=100){
               var jsondata = '{"mintemp":'+formdata["mintemp"].value+',"maxtemp":'+formdata["maxtemp"].value+',"minlight":'+formdata["minlight"].value+',"maxlight":'+formdata["maxlight"].value+',"minmois":'+formdata["minmois"].value+',"maxmois":'+formdata["maxmois"].value+'}';
               formdata["mintemp"].value = "";
               formdata["maxtemp"].value = "";
@@ -396,7 +396,7 @@ void loop() {
 void sendSensorVal(){
   int moisdata_raw = analogRead(MOISTURE_SENSOR);
   int moisdata = map(moisdata_raw,mois_low,mois_high,0,100);
-  if (moisdata>=minmois && moisdata<=maxmois){
+  if (moisdata>=minmois && moisdata<=maxmois && moisdata!=0){
     moistest = "PASS";
     digitalWrite(MOISTURE_LIGHT,HIGH);
   }
