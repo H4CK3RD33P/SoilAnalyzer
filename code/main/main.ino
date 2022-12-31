@@ -12,6 +12,10 @@
 #define PHOTO_SENSOR 33
 #define PHOTO_LIGHT 5
 
+const int light_low = 4096;
+const int light_high = 0;
+const int mois_low = 4095;
+const int mois_high = 950;
 
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
@@ -372,7 +376,8 @@ void loop() {
 
 //function declaration of sendSensorVal
 void sendSensorVal(){
-  int moisdata = analogRead(MOISTURE_SENSOR);
+  int moisdata_raw = analogRead(MOISTURE_SENSOR);
+  int moisdata = map(moisdata_raw,mois_low,mois_high,0,100);
   if (moisdata>=minmois && moisdata<=maxmois){
     moistest = "PASS";
     digitalWrite(MOISTURE_LIGHT,HIGH);
@@ -393,7 +398,9 @@ void sendSensorVal(){
     digitalWrite(TEMP_LIGHT,LOW);
   }
 
-  int lightdata = analogRead(PHOTO_SENSOR);
+  int lightdata_raw = analogRead(PHOTO_SENSOR);
+  int lightdata = map(lightdata_raw,light_low,light_high,0,100);
+
   if(lightdata>=minlight && lightdata<=maxlight){
     lighttest = "PASS";
     digitalWrite(PHOTO_LIGHT,HIGH);
