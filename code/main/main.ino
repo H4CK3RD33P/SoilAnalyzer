@@ -15,7 +15,7 @@
 const int light_low = 4096;
 const int light_high = 0;
 const int mois_low = 4095;
-const int mois_high = 1850;
+const int mois_high = 550;
 
 
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
@@ -188,7 +188,7 @@ void setup() {
                         Minimum temperature (in *C): <input type="text" name="mintemp">
                         Maximum temperature (in *C): <input type="text" name="maxtemp">
                         <br>
-                        <small class="desc">(temperature must be between 1*C and 100*C)</small>
+                        <small class="desc">(temperature must be between 1*C and 99*C)</small>
                     </div>
                     <br>
                     <div id="light">
