@@ -1,4 +1,5 @@
 #include <WiFiManager.h>
+#include <ESPmDNS.h>
 #define TRIGGER_PIN 15
 int timeout = 180;
 void setup() {
@@ -6,7 +7,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("\n Starting");
   pinMode(TRIGGER_PIN, INPUT_PULLUP);
-
+  MDNS.begin("soilcloud");
 }
 
 void loop() {
@@ -20,7 +21,7 @@ void loop() {
     // set configportal timeout
     wm.setConfigPortalTimeout(timeout);
 
-    if (!wm.startConfigPortal("OnDemandAP")) {
+    if (!wm.startConfigPortal("SoilCloud")) {
       Serial.println("failed to connect and hit timeout");
       delay(3000);
       //reset and try again, or maybe put it to deep sleep
