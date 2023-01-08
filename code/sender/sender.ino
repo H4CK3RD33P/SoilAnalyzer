@@ -11,7 +11,21 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial2.write("Hello from A");
-  Serial.write("Sent: Hello from A\n");
+  char buf[100];
+  int moisdata = 50;
+  double tempdata = 33.33;
+  int lightdata = 70;
+  String JSON_data = "{\"moisdata\":";
+          JSON_data+= moisdata;
+          JSON_data+=",\"tempdata\":";
+          JSON_data+= tempdata;  
+          JSON_data+=",\"lightdata\":";
+          JSON_data+= lightdata;
+          JSON_data+="}";
+  
+  JSON_data.toCharArray(buf, JSON_data.length()+1);
+  Serial2.write(buf);
+  Serial.write(buf);
+  Serial.println();
   delay(2000);
 }
