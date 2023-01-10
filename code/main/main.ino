@@ -72,6 +72,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
 }
 
 void setup() {
+  Serial2.begin(115200, SERIAL_8N1, 16, 17);
   Serial.begin(115200); //baud rate
   WiFi.softAP("SoilAnalyzer",""); //hotspot with SSID and password is empty
   Serial.println("IP: "); 
@@ -81,6 +82,7 @@ void setup() {
   pinMode(TEMP_LIGHT,OUTPUT);
   pinMode(PHOTO_LIGHT,OUTPUT);
   tempsensor.begin();
+  
 
   
   //route
@@ -394,6 +396,7 @@ void loop() {
 
 //function declaration of sendSensorVal
 void sendSensorVal(){
+  char buf[100];
   int moisdata_raw = analogRead(MOISTURE_SENSOR);
   int moisdata = map(moisdata_raw,mois_low,mois_high,0,100);
   if (moisdata>=minmois && moisdata<=maxmois && moisdata!=0){
@@ -428,6 +431,17 @@ void sendSensorVal(){
     digitalWrite(PHOTO_LIGHT,LOW);
   }
 
+  String JSON_data_min = "{\"moisdata\":";
+          JSON_data_min+= moisdata;
+          JSON_data_min+=",\"tempdata\":";
+          JSON_data_min+= tempdata;  
+          JSON_data_min+=",\"lightdata\":";
+          JSON_data_min+= lightdata;
+          JSON_data_min+="}";
+  
+  JSON_data_min.toCharArray(buf, JSON_data_min.length()+1);
+  Serial2.write(buf);
+
   String JSON_data = "{\"moisdata\":";
           JSON_data+= moisdata;
           JSON_data+=",\"moistest\":";
@@ -441,7 +455,9 @@ void sendSensorVal(){
           JSON_data+=",\"lighttest\":";
           JSON_data+="\""+lighttest+"\"";
           JSON_data+="}";
-  
+
+  delay(2000);   
   Serial.println(JSON_data);
-  websockets.broadcastTXT(JSON_data); //send the JSON data to all clients i.e broadcast      
+  websockets.broadcastTXT(JSON_data); //send the JSON data to all clients i.e broadcast
+     
 }
