@@ -36,29 +36,29 @@ To help them overcome this problem, this device is created. The farmers can ente
 <br>
 SoilCloud AP is started where a smart device is connected to access the configuration portal to connect the ESP-32 to an internet-enabled network. It then scans nearby available WiFi networks and displays them with their SSID and Signal strength and the user has to select one of them and enter the password to connect to that network.
 
-![img1](resources/img1.png)
-![img2](resources/img2.png)
-![img3](resources/img3.png)
+<img src="resources/img1.png" width="240px" height="540px" alt="img1">
+<img src="resources/img2.png" width="240px" height="540px" alt="img2">
+<img src="resources/img3.png" width="240px" height="540px" alt="img3">
 
 Once the ESP-32 is connected to an internet-enabled network it closes SoilCloud AP.
 
 Now it starts SoilAnalyzer AP where a user connects a smart device to access the input form via browser. IP is not required as the local mDNS server can convert the domain name to IP. The domain name is http://soilanalyzer.local/
 
-![img4](resources/img4.png)
-![img5](resources/img5.png)
+<img src="resources/img4.png" width="240px" height="540px" alt="img4">
+<img src="resources/img5.png" width="240px" height="540px" alt="img5">
 
 User has to enter all the minimum and maximum values here.
 Once the user enters all the desired parameters, data validation is done and upon success, it takes the user to another page (URL: http://soilanalyzer.local/results )
 
-![img6](resources/img6.png)
+<img src="resources/img6.png" width="240px" height="540px" alt="img6">
 
 This is where the real-time data is matched against the user input and it shows whether the requirement has passed or not. If a particular parameter is passed the LED associated with it turns on.
 
-![img8](resources/img8.png)
+<img src="resources/img8.png" width="400px" height="250px" alt="img8">
 
 This data is updated after every 17 seconds using WebSockets. The communication between frontend and server takes place using JSON via WebSockets and the same data is uploaded to the ThingSpeak server where it is plotted in graphs this data is further analyzed using MATLAB analysis tool built inside ThingSpeak
 
-![img7](resources/img7.png)
+<img src="resources/img7.png" width="400px" height="250px" alt="img7">
 
 **Schematic Diagram**
 ![imgss](resources/imgss.png)
