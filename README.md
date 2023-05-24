@@ -3,6 +3,7 @@
 
 *Final Semester Major Project for the completion award of PG Degree 'Master of Computer Application' 2023*
 ****
+***<a href="resources/Final_year_report.pdf">Download Documentation</a>***
 
 ## Group Members
 | Name | University Roll | Github username |
