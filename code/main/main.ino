@@ -5,27 +5,35 @@
 #include <Ticker.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+//#include <WiFiManager.h> //This is incompatible with AsyncTCP library
+#include <ESPAsyncWiFiManager.h> //This the alternative for WiFimanager
+#include <ThingSpeak.h>
 #define MOISTURE_SENSOR 34
 #define MOISTURE_LIGHT 15
 #define TEMP_SENSOR 2
 #define TEMP_LIGHT 4
 #define PHOTO_SENSOR 33
 #define PHOTO_LIGHT 5
+#define CHANNEL_ID 2002484
+#define CHANNEL_WRITE_API_KEY "HB1XUG2HIXVI9HCR"
 
 const int light_low = 4096;
 const int light_high = 0;
 const int mois_low = 4095;
 const int mois_high = 550;
+int timeout = 180;
+char thingspeakserver[] = "www.thingspeak.com";
 
-
+WiFiClient client;
 AsyncWebServer server(80); //server listening at port 80 i.e HTTP port
 WebSocketsServer websockets(81); //web sockets server listening at port 81
 Ticker timer;
 OneWire onewire(TEMP_SENSOR);
 DallasTemperature tempsensor(&onewire);
+DNSServer dns;
 
-
-void sendSensorVal(); //this function will be called after an interval of 1 second in loop [declared below]
+void sendSensorVal(); //this function will be called after an interval of 17 second in loop [declared below]
+void ondemandap();
 
 int mintemp,maxtemp,minlight,maxlight,minmois,maxmois;
 String moistest,lighttest,temptest;
@@ -74,9 +82,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
 void setup() {
   Serial2.begin(115200, SERIAL_8N1, 16, 17);
   Serial.begin(115200); //baud rate
-  WiFi.softAP("SoilAnalyzer",""); //hotspot with SSID and password is empty
-  Serial.println("IP: "); 
-  Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
+  WiFi.mode(WIFI_AP_STA);
+  ondemandap();
   server.onNotFound(notFound); //calls the notFound() function upon requesting invalid page
   pinMode(MOISTURE_LIGHT, OUTPUT);
   pinMode(TEMP_LIGHT,OUTPUT);
@@ -336,6 +343,9 @@ void setup() {
             </div>
         </div>
         <script>
+
+            // {"moisdata":60,"moistest":"PASS","tempdata":30,"temptest":"FAIL","lightdata":80,"lighttest":"PASS"}
+
             var connection = new WebSocket('ws://'+location.hostname+':81/');
             var moisdata = 0;
             var moistest = "";
@@ -345,9 +355,10 @@ void setup() {
 
             var lightdata = 0;
             var lighttest = "";
+            
 
             connection.onmessage = function(event){
-                var fulldata = event.data;
+                var fulldata = event.data; //{"moisdata":60,"moistest":"PASS","tempdata":30,"temptest":"FAIL","lightdata":80,"lighttest":"PASS"}
                 console.log(fulldata);
                 var data = JSON.parse(fulldata);
 
@@ -381,11 +392,15 @@ void setup() {
   });
   
   websockets.onEvent(webSocketEvent); //call the webSocketEvent() function on any websocket event 
-  timer.attach(1,sendSensorVal); //attach timer with sendSensorVal with interval of 1 [this function will be called after every 1 second]
+  timer.attach(17,sendSensorVal); //attach timer with sendSensorVal with interval of 17 [this function will be called after every 17 second]
   //start servers
   server.begin(); //start the web server
   MDNS.begin("soilanalyzer"); //set up local domain name server with hostname -> soilanalyzer.local
   websockets.begin(); //start the websockets server
+  WiFi.softAP("SoilAnalyzer",""); //hotspot with SSID and password is empty
+  Serial.println("IP: "); 
+  Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
+  ThingSpeak.begin(client);  // Initialize ThingSpeak
 }
 
 void loop() {
@@ -456,8 +471,41 @@ void sendSensorVal(){
           JSON_data+="\""+lighttest+"\"";
           JSON_data+="}";
 
-  delay(2000);   
+          // {"moisdata":60,"moistest":"PASS","tempdata":30,"temptest":"FAIL","lightdata":80,"lighttest":"PASS"}
+  
   Serial.println(JSON_data);
-  websockets.broadcastTXT(JSON_data); //send the JSON data to all clients i.e broadcast
-     
+  websockets.broadcastTXT(JSON_data); //send the JSON data to all clients i.e broadcast      
+  if(client.connect(thingspeakserver,80)){
+      //internet is available
+      //digitalWrite(THINGSPEAKLED,HIGH);
+      //Set the fields one by one
+      ThingSpeak.setField(1,moisdata);
+      ThingSpeak.setField(2,tempdata);
+      ThingSpeak.setField(3,lightdata);
+      //POST all the data at once (i.e in a single HTTP request)
+      ThingSpeak.writeFields(CHANNEL_ID,CHANNEL_WRITE_API_KEY);
+      //ThingSpeak allows new data point after 15 seconds minimum
+      //3 million requests are free annually
+    }
+    else{
+      //digitalWrite(THINGSPEAKLED,LOW);
+      Serial.println("Could not connect to server");
+      //ondemandap();
+    }
+}
+
+void ondemandap(){
+  AsyncWiFiManager wifiManager(&server,&dns);
+  wifiManager.resetSettings();
+  wifiManager.setTimeout(timeout);
+
+  if (!wifiManager.startConfigPortal("SoilCloud")) {
+      Serial.println("failed to connect and hit timeout");
+      delay(3000);
+      //reset and try again, or maybe put it to deep sleep
+      ESP.restart();
+      delay(5000);
+    }
+    //if you get here you have connected to the WiFi
+    Serial.println("connected...yeey :)");
 }
