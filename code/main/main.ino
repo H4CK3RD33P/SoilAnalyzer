@@ -82,9 +82,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
 void setup() {
   Serial.begin(115200); //baud rate
   WiFi.mode(WIFI_AP_STA);
-  // WiFi.softAP("SoilAnalyzer",""); //hotspot with SSID and password is empty
-  // Serial.println("IP: "); 
-  // Serial.println(WiFi.softAPIP()); //IP of the microcontroller will be printed on serial monitor
   ondemandap();
   server.onNotFound(notFound); //calls the notFound() function upon requesting invalid page
   pinMode(MOISTURE_LIGHT, OUTPUT);
@@ -344,6 +341,9 @@ void setup() {
             </div>
         </div>
         <script>
+
+            // {"moisdata":60,"moistest":"PASS","tempdata":30,"temptest":"FAIL","lightdata":80,"lighttest":"PASS"}
+
             var connection = new WebSocket('ws://'+location.hostname+':81/');
             var moisdata = 0;
             var moistest = "";
@@ -353,9 +353,10 @@ void setup() {
 
             var lightdata = 0;
             var lighttest = "";
+            
 
             connection.onmessage = function(event){
-                var fulldata = event.data;
+                var fulldata = event.data; //{"moisdata":60,"moistest":"PASS","tempdata":30,"temptest":"FAIL","lightdata":80,"lighttest":"PASS"}
                 console.log(fulldata);
                 var data = JSON.parse(fulldata);
 
@@ -455,6 +456,8 @@ void sendSensorVal(){
           JSON_data+=",\"lighttest\":";
           JSON_data+="\""+lighttest+"\"";
           JSON_data+="}";
+
+          // {"moisdata":60,"moistest":"PASS","tempdata":30,"temptest":"FAIL","lightdata":80,"lighttest":"PASS"}
   
   Serial.println(JSON_data);
   websockets.broadcastTXT(JSON_data); //send the JSON data to all clients i.e broadcast      
@@ -476,23 +479,6 @@ void sendSensorVal(){
       //ondemandap();
     }
 }
-
-// void ondemandap(){
-//   WiFiManager wm;    
-//   //reset settings i.e remove all previous credentials
-//   wm.resetSettings();
-//   // set configportal timeout
-//   wm.setConfigPortalTimeout(timeout);
-//   if (!wm.startConfigPortal("SoilCloud")) {
-//     Serial.println("failed to connect and hit timeout");
-//     delay(3000);
-//     //reset and try again, or maybe put it to deep sleep
-//     ESP.restart();
-//     delay(5000);
-//   }
-//   //if you get here you have connected to the WiFi
-//   Serial.println("connected...yeey :)");
-// }
 
 void ondemandap(){
   AsyncWiFiManager wifiManager(&server,&dns);
