@@ -18,7 +18,7 @@
 
 ## Special Thanks
 ❤️ ***Prof. Biplab Chowdhury*** <br>
-❤️ ***Prof. Tanmay De***
+❤️ ***Prof. Tanmay De*** <br>
 ❤️ ***Shubhadeep Maity***
 
 *SoilAnalyzer is an IoT device based on ESP-32 which analyzes and monitors soil in real-time on Webpage and ThingSpeak via WebSockets.*
