@@ -23,6 +23,12 @@
 
 *SoilAnalyzer is an IoT device based on ESP-32 which analyzes and monitors soil in real-time on Webpage and ThingSpeak via WebSockets.*
 
+
+
+https://github.com/H4CK3RD33P/SoilAnalyzer/assets/68001267/ff302985-11bb-4c7b-84fe-55318fa15317
+
+
+
 ****
 **Breadboard Diagram**
 ![imgbb](resources/imgbb.png)
