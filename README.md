@@ -5,14 +5,6 @@
 ****
 ***<a href="resources/Final_year_report.pdf">Download Documentation</a>***
 
-## Group Members
-| Name | University Roll | Github username |
-|------|-----------------|-----------------|
-|Subhodeep Sarkar|29171021011|<a href='https://github.com/H4CK3RD33P'>H4CK3RD33P</a>|
-|Birupaksha Dey|29171021028|
-|Soutik Mahanta|29171021036|
-|Subhajyoti Mondal|29171021039|<a href='https://github.com/Subhajyoti007'>Subhajyoti007</a>|
-
 ## Mentor
 ❤️ ***Prof. Piyali Mukherjee***
 
