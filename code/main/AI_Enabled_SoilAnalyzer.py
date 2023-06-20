@@ -13,11 +13,13 @@ from sklearn.svm import SVC
 svc = SVC(probability=True,gamma=0.001,kernel='linear') #hyperparameter tuning 
 svc.fit(x_train,y_train)
 svc.score(x_train,y_train)
-svcpredictions = svc.predict(np.array([[19,58,67],
-                                       [24,45,80],
-                                       [34,80,77]]))
-print(port(svc))
-
+svcpredictions = svc.predict(np.array([[30, 77, 80]]))
+print(port(svc,classmap={
+    0:'Rice',
+    1:'Wheat',
+    2:'Bajra',
+    3:'Gram'
+}))
 
 
 
