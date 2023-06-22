@@ -5,6 +5,7 @@
 #include <Ticker.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include "model.h"
 //#include <WiFiManager.h> //This is incompatible with AsyncTCP library
 #include <ESPAsyncWiFiManager.h> //This the alternative for WiFimanager
 #include <ThingSpeak.h>
@@ -255,7 +256,7 @@ void setup() {
     <head>
         <title>Results</title>
         <style>
-            #moisval,#moistest,#tempval,#temptest,#lightval,#lighttest{
+            #moisval,#moistest,#tempval,#temptest,#lightval,#lighttest,#predval{
                 display: inline;
                 margin: 10px;    
             }
@@ -340,6 +341,10 @@ void setup() {
                     <h3 id="lightval">100</h3>%
                     <h3 id="lighttest">FAIL</h3>
                 </div>
+                <div id="pred">
+                  <h3>Suitable For: </h3>
+                  <h3 id="predval">UNKNOWN</h3>
+                </div>                
             </div>
         </div>
         <script>
@@ -355,6 +360,8 @@ void setup() {
 
             var lightdata = 0;
             var lighttest = "";
+
+            var prediction = "";
             
 
             connection.onmessage = function(event){
@@ -371,6 +378,8 @@ void setup() {
                 lightdata = data.lightdata;
                 lighttest = data.lighttest;
 
+                prediction = data.prediction;
+
                 document.getElementById("moismtr").value = moisdata;
                 document.getElementById("moisval").innerHTML = moisdata;
                 document.getElementById("moistest").innerHTML = moistest;
@@ -382,6 +391,8 @@ void setup() {
                 document.getElementById("lightmtr").value = lightdata;
                 document.getElementById("lightval").innerHTML = lightdata;
                 document.getElementById("lighttest").innerHTML = lighttest;
+
+                document.getElementById("predval").innerHTML = prediction;
             }
         </script>
     </body>
@@ -457,6 +468,10 @@ void sendSensorVal(){
   JSON_data_min.toCharArray(buf, JSON_data_min.length()+1);
   Serial2.write(buf);
 
+  float features[] = {tempdata,moisdata,lightdata};
+  Eloquent::ML::Port::SVM svm;
+  String prediction = svm.idxToLabel(svm.predict(features));
+
   String JSON_data = "{\"moisdata\":";
           JSON_data+= moisdata;
           JSON_data+=",\"moistest\":";
@@ -469,6 +484,8 @@ void sendSensorVal(){
           JSON_data+= lightdata;
           JSON_data+=",\"lighttest\":";
           JSON_data+="\""+lighttest+"\"";
+          JSON_data+=",\"prediction\":";
+          JSON_data+="\""+prediction+"\"";
           JSON_data+="}";
 
           // {"moisdata":60,"moistest":"PASS","tempdata":30,"temptest":"FAIL","lightdata":80,"lighttest":"PASS"}
