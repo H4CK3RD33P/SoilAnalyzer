@@ -65,12 +65,12 @@ Now it starts SoilAnalyzer AP where a user connects a smart device to access the
 <img src="resources/img4.png" width="240px" height="540px" alt="img4">
 <img src="resources/img5.png" width="240px" height="540px" alt="img5">
 
-User has to enter all the minimum and maximum values here.
+User has to enter all the minimum and maximum values here.(Temperature, Moisture, Light). 
 Once the user enters all the desired parameters, data validation is done and upon success, it takes the user to another page (URL: http://soilanalyzer.local/results )
 
-<img src="resources/img6.png" width="240px" height="540px" alt="img6">
+<img src="resources/img6.jpg" width="300px" height="450px" alt="img6">
 
-This is where the real-time data is matched against the user input and it shows whether the requirement has passed or not. If a particular parameter is passed the LED associated with it turns on.
+This is where the real-time data is matched against the user input and it shows whether the requirement has passed or not. It also shows the crop that is most suitable for the land. If a particular parameter is passed the LED associated with it turns on. RED led indicates Temperature test, GREEN led indicates Moisture test, YELLOW led indicates Light test.
 
 <img src="resources/img8.png" width="400px" height="250px" alt="img8">
 
