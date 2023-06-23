@@ -1,5 +1,6 @@
 # SoilAnalyzer
-#### IoT device for real-time soil analysis and monitoring
+### By Subhodeep Sarkar
+#### IoT device for real-time soil analysis and monitoring using machine learning
 
 *Final Semester Major Project for the completion award of PG Degree 'Master of Computer Application' 2023*
 ****
@@ -11,10 +12,8 @@
 ## Special Thanks
 ❤️ ***Prof. Biplab Chowdhury*** <br>
 ❤️ ***Prof. Tanmay De*** <br>
-❤️ ***Shubhadeep Maity***
 
-*SoilAnalyzer is an IoT device based on ESP-32 which analyzes and monitors soil in real-time on Webpage and ThingSpeak via WebSockets.*
-
+*SoilAnalyzer is an IoT device based on ESP-32 which takes user requirements and tests them against the soil parameters and predicts the best suitable crop for the soil using a Supervised Machine Learning Support Vector Classifier model. It records the data and performs MATLAB Analysis and visualization in ThingSpeak cloud.*
 
 
 https://github.com/H4CK3RD33P/SoilAnalyzer/assets/68001267/ff302985-11bb-4c7b-84fe-55318fa15317
